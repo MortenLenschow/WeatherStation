@@ -46,7 +46,7 @@ namespace WeatherStation.Service
         }
 
         //Adds location id to weather forecast
-        public async Task WeatherAddLocation(Weather weather, Location location)
+        private async Task WeatherAddLocation(Weather weather, Location location)
         {
             await _weatherCollection.UpdateOneAsync(Builders<Weather>.Filter
                 .Eq("Id", weather.Id), Builders<Weather>.Update
