@@ -7,7 +7,7 @@ namespace WeatherStation.Models
 {
     public class Weather
     {
-        public DateTime date { get; set; }
+        public DateTime Date { get; set; }
         public int TemperatureC { get; set; }
         public string Summary { get; set; }
         public int Humidity { get; set; }
