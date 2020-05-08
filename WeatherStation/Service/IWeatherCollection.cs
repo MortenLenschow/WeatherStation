@@ -13,7 +13,5 @@ namespace WeatherStation.Service
         Task<List<Weather>> GetForecastsForGivenDate(DateTime date);
         Task<List<Weather>> GetForecastsBetweenInterval(DateTime start, DateTime end);
         Task CreateWeatherForecast(Weather weather, Location location);
-        Task WeatherAddLocation(Weather weather, Location location);
-
     }
 }
