@@ -22,18 +22,18 @@ namespace WeatherStation.Service
 
         //Returns all weather forecasts for a given date
         public async Task<List<Weather>> GetForecastsForGivenDate(DateTime date) =>
-            await _weatherCollection.Find(weather => weather.date == date).ToListAsync();
+            await _weatherCollection.Find(weather => weather.Date == date).ToListAsync();
 
         //Returns all weather forecasts between a start date and an end date
         public async Task<List<Weather>> GetForecastsBetweenInterval(DateTime start, DateTime end) =>
-            await _weatherCollection.Find(day => day.date >= start && day.date <= end).ToListAsync();
+            await _weatherCollection.Find(day => day.Date >= start && day.Date <= end).ToListAsync();
 
         //Add weather forecast
         public async Task CreateWeatherForecast(Weather weather, Location location)
         {
             var item = new Weather
             {
-                date = DateTime.Now,
+                Date = DateTime.Now,
                 AirPressure = weather.AirPressure,
                 Humidity = weather.Humidity,
                 Location = weather.Location,

@@ -36,7 +36,7 @@ namespace WeatherStation.Service
                 new Weather
                 {
                     AirPressure = 20.0,
-                    date = DateTime.Now,
+                    Date = DateTime.Now,
                     Humidity = 10,
                     TemperatureC = 23,
                     Summary = "Guttes Sonne"

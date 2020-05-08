@@ -12,7 +12,7 @@ namespace WeatherStation.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
-        public DateTime date { get; set; }
+        public DateTime Date { get; set; }
         public int TemperatureC { get; set; }
         public string Summary { get; set; }
         public int Humidity { get; set; }

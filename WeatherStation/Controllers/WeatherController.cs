@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WeatherStation.Models;
+using WeatherStation.Service;
 
 namespace WeatherStation.Controllers
 {
@@ -18,10 +19,14 @@ namespace WeatherStation.Controllers
         };
 
         private readonly ILogger<WeatherController> _logger;
+        private DbContext _context;
 
-        public WeatherController(ILogger<WeatherController> logger)
+        public WeatherController(ILogger<WeatherController> logger, IDbContextSettings context)
         {
             _logger = logger;
+
+            _context = new DbContext(context);
+            var tempWeather = WeatherCollection();
         }
 
         [HttpGet]
