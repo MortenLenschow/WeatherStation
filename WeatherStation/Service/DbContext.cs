@@ -28,7 +28,7 @@ namespace WeatherStation.Service
             Task.Run(() => dbConfig.Seed()).Wait();
         }
 
-        public async Task<List<Weather>> GetForecasts()
+        public async Task<IEnumerable<Weather>> GetForecasts()
         {
             return await _collection.GetAllForecasts();
         }

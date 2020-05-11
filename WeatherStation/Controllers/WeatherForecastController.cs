@@ -18,7 +18,7 @@ namespace WeatherStation.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        private readonly ILogger<WeatherForecastController> _logger;
+        private ILogger<WeatherForecastController> _logger;
         private DbContext _context;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger, IDbContextSettings context, IWeatherCollection weatherCollection)
@@ -29,9 +29,10 @@ namespace WeatherStation.Controllers
         }
 
         [HttpGet]
-        public async ActionResult<List<Weather>> Get()
+        public async Task<IEnumerable<Weather>> GetAll()
         {
             return await _context.GetForecasts();
+
         }
     }
 }

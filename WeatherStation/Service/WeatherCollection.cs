@@ -17,8 +17,11 @@ namespace WeatherStation.Service
         }
 
         //Returns all weather forecasts
-        public async Task<List<Weather>> GetAllForecasts() =>
-            await _weatherCollection.Find(_ => true).ToListAsync();
+        public async Task<IEnumerable<Weather>> GetAllForecasts()
+        {
+            return await _weatherCollection.Find(_ => true).ToListAsync();
+        }
+            
 
         //Returns all weather forecasts for a given date
         public async Task<List<Weather>> GetForecastsForGivenDate(DateTime date) =>
