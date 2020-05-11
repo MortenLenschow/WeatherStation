@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace WeatherStation
 {
@@ -52,6 +53,13 @@ namespace WeatherStation
                         ValidateAudience = false
                     };
                 });
+
+
+            services.Configure<DbContextSettings>(
+               Configuration.GetSection(nameof(DbContextSettings)));
+            services.AddSingleton<IDbContextSettings>(sp =>
+                sp.GetRequiredService<IOptions<DbContextSettings>>().Value);
+            services.AddSingleton<DbContext>();
 
             // configure DI for application services
             services.AddScoped<IUserService, UserService>();

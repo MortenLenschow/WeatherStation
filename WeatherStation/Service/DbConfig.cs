@@ -28,25 +28,6 @@ namespace WeatherStation.Service
             return _weatherCollection;
         }
 
-        public async Task Seed()
-        {
-            WeatherCollection wc = new WeatherCollection(_weatherCollection);
-
-            await wc.CreateWeatherForecast(
-                new Weather
-                {
-                    AirPressure = 20.0,
-                    Date = DateTime.Now,
-                    Humidity = 10,
-                    TemperatureC = 23,
-                    Summary = "Guttes Sonne"
-                },
-                new Location
-                {
-                    City = "Esbjerg",
-                    Latitude = 10.0,
-                    Longitude = 10.0
-                });
-        }
+        
     }
 }

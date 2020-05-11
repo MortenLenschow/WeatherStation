@@ -17,18 +17,18 @@ namespace WeatherStation.Service
         }
 
         //Returns all weather forecasts
-        public async Task<IEnumerable<Weather>> GetAllForecasts()
+        public async Task<List<Weather>> GetAllForecasts()
         {
             return await _weatherCollection.Find(_ => true).ToListAsync();
         }
             
 
         //Returns all weather forecasts for a given date
-        public async Task<List<Weather>> GetForecastsForGivenDate(DateTime date) =>
+        public async Task<IEnumerable<Weather>> GetForecastsForGivenDate(DateTime date) =>
             await _weatherCollection.Find(weather => weather.Date == date).ToListAsync();
 
         //Returns all weather forecasts between a start date and an end date
-        public async Task<List<Weather>> GetForecastsBetweenInterval(DateTime start, DateTime end) =>
+        public async Task<IEnumerable<Weather>> GetForecastsBetweenInterval(DateTime start, DateTime end) =>
             await _weatherCollection.Find(day => day.Date >= start && day.Date <= end).ToListAsync();
 
         //Add weather forecast
@@ -39,13 +39,13 @@ namespace WeatherStation.Service
                 Date = DateTime.Now,
                 AirPressure = weather.AirPressure,
                 Humidity = weather.Humidity,
-                Location = weather.Location,
+                LocationId = location.LocationId,
                 Summary = weather.Summary,
                 TemperatureC = weather.TemperatureC
             };
 
             await _weatherCollection.InsertOneAsync(item);
-            await WeatherAddLocation(item, location);
+            //await WeatherAddLocation(item, location);
         }
 
         //Adds location id to weather forecast

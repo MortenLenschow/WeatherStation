@@ -14,31 +14,30 @@ namespace WeatherStation.Service
         private IMongoCollection<Weather> _Weather;
         private IWeatherCollection _collection;
 
-        public DbContext(IDbContextSettings settings, IWeatherCollection collection)
+        public DbContext(IDbContextSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
-            var dbConfig = new DbConfig(_Weather, settings, database);
-            _collection = collection;
+            _Weather = database.GetCollection<Weather>(settings.WeatherCollectionName);
+            _collection = new WeatherCollection(_Weather);
 
-            dbConfig.GetCollection();
 
             //One way to be able to call async function in constructor
             //Might cause problems
-            Task.Run(() => dbConfig.Seed()).Wait();
+            Task.Run(() => Seed()).Wait();
         }
 
-        public async Task<IEnumerable<Weather>> GetForecasts()
+        public async Task<List<Weather>> GetForecasts()
         {
             return await _collection.GetAllForecasts();
         }
 
-        public async Task<List<Weather>> GetForecastsForGivenDate(DateTime date)
+        public async Task<IEnumerable<Weather>> GetForecastsForGivenDate(DateTime date)
         {
             return await _collection.GetForecastsForGivenDate(date);
         }
 
-        public async Task<List<Weather>> GetForecastsBetweenInterval(DateTime start, DateTime end)
+        public async Task<IEnumerable<Weather>> GetForecastsBetweenInterval(DateTime start, DateTime end)
         {
             return await _collection.GetForecastsBetweenInterval(start, end);
         }
@@ -48,6 +47,26 @@ namespace WeatherStation.Service
             await _collection.CreateWeatherForecast(weather, location);
         }
 
+        public async Task Seed()
+        {
+            WeatherCollection wc = new WeatherCollection(_Weather);
+
+            await wc.CreateWeatherForecast(
+                new Weather
+                {
+                    AirPressure = 20.0,
+                    Date = DateTime.Now,
+                    Humidity = 10,
+                    TemperatureC = 23,
+                    Summary = "Guttes Sonne"
+                },
+                new Location
+                {
+                    City = "Esbjerg",
+                    Latitude = 10.0,
+                    Longitude = 10.0
+                });
+        }
     }
 }
 
