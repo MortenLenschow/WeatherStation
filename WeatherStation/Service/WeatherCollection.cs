@@ -39,20 +39,20 @@ namespace WeatherStation.Service
                 Date = DateTime.Now,
                 AirPressure = weather.AirPressure,
                 Humidity = weather.Humidity,
-                LocationId = location.LocationId,
+                Location = location,
                 Summary = weather.Summary,
                 TemperatureC = weather.TemperatureC
             };
 
             await _weatherCollection.InsertOneAsync(item);
-            //await WeatherAddLocation(item, location);
+            await WeatherAddLocation(item, location);
         }
 
         //Adds location id to weather forecast
         private async Task WeatherAddLocation(Weather weather, Location location)
         {
             await _weatherCollection.UpdateOneAsync(Builders<Weather>.Filter
-                .Eq("Id", weather.Id), Builders<Weather>.Update
+                .Eq("LocationId", weather.LocationId), Builders<Weather>.Update
                 .Push("LocationId", location.LocationId));
         }
     }
