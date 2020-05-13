@@ -20,18 +20,32 @@ namespace WeatherStation.Controllers
             _context = context;
         }
 
-        // GET: api/Vejrobservationer
+        // GET: api/weatherforecast
         [HttpGet]
-        public async Task<ActionResult<List<Weather>>> GetAll()
+        public async Task<IEnumerable<Weather>> GetAll()
         {
             return await _context.GetAllForecasts();
         }
 
-        // GET: api/Vejrobservationer/2020-01-01T00:00:00
+        // GET: api/weatherforecast/latest
+        [HttpGet("latest")]
+        public async Task<IEnumerable<Weather>> GetForecastsLatest()
+        {
+            return await _context.GetForecastsLatest();
+        }
+
+        // GET: api/weatherforecast/2020-05-xxT22:00:00Z
         [HttpGet("{date:DateTime}")]
-        public async Task<ActionResult<List<Weather>>> GetWeather(DateTime date)
+        public async Task<IEnumerable<Weather>> GetForecastsForGivenDate(DateTime date)
         {
             return await _context.GetForecastsForGivenDate(date);
+        }
+
+        // GET: api/weatherforecast/2020-05-xxT22:00:00Z-2020-05-xxT22:00:00Z
+        [HttpGet("{start:DateTime}/{end:DateTime}")]
+        public async Task<IEnumerable<Weather>> GetForecastsForGivenInterval(DateTime start, DateTime end)
+        {
+            return await _context.GetForecastsForGivenInterval(start, end);
         }
     }
 }

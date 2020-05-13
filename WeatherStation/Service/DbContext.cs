@@ -23,23 +23,35 @@ namespace WeatherStation.Service
             GetCollections(settings, database);
         }
 
-        public Location GetLocation(string name) => _Location.Find(location => location.Name == name).FirstOrDefault();
+        #region API
 
         //Returns all weather forecasts
-        public async Task<List<Weather>> GetAllForecasts()
+        public async Task<IEnumerable<Weather>> GetAllForecasts()
         {
             return await _Weather.Find(_ => true).ToListAsync();
+            //return await _Weather.Find(weather => weather.Date != null).ToListAsync();
         }
 
         //Returns all weather forecasts for a given date
-        public async Task<List<Weather>> GetForecastsForGivenDate(DateTime date)
+        public async Task<IEnumerable<Weather>> GetForecastsForGivenDate(DateTime date)
         {
             return await _Weather.Find(weather => weather.Date == date).ToListAsync();
         }
 
         //Returns all weather forecasts between a start date and an end date
-        public async Task<IEnumerable<Weather>> GetForecastsBetweenInterval(DateTime start, DateTime end) =>
-            await _Weather.Find(day => day.Date >= start && day.Date <= end).ToListAsync();
+        public async Task<IEnumerable<Weather>> GetForecastsForGivenInterval(DateTime start, DateTime end)
+        {
+            return await _Weather.Find(day => day.Date >= start && day.Date <= end).ToListAsync();
+        }
+
+        //Returns the 3 latest weather forecasts
+        public async Task<IEnumerable<Weather>> GetForecastsLatest()
+        {
+            var list = await _Weather.Find(_ => true).ToListAsync();
+            return list.OrderByDescending(weather => weather.Date).Take(3);
+        }
+
+        public Location GetLocation(string name) => _Location.Find(location => location.Name == name).FirstOrDefault();
 
         //Add weather forecast
         public async Task CreateForecast(Weather weather, string cityName)
@@ -57,12 +69,22 @@ namespace WeatherStation.Service
             await _Location.InsertOneAsync(location);
         }
 
+        #endregion
+
+        #region Seeding/Deleting
+
         public async Task Seed()
         {
             await CreateLocation(new Location() { Name = "Aarhus", Latitude = 10.203921, Longitude = 56.162939 });
-            await CreateForecast(new Weather() { Date = DateTime.Now, TemperatureC = 25.3, Summary = "Konge sommervejr", Humidity = 3, AirPressure = 5.3 }, "Aarhus" );
-            await CreateForecast(new Weather() { Date = DateTime.Now, TemperatureC = 20.7, Summary = "Klar himmel, ingen skyer", Humidity = 5, AirPressure = 7.5 }, "Aarhus" );
-            await CreateForecast(new Weather() { Date = DateTime.Now, TemperatureC = 17.1, Summary = "Let overskyet og mild vind", Humidity = 7, AirPressure = 10.4 }, "Aarhus" );
+            await CreateForecast(new Weather() { Date = DateTime.Today, TemperatureC = 25.3, Summary = "Konge sommervejr", Humidity = 3, AirPressure = 5.3 }, "Aarhus" );
+            await CreateForecast(new Weather() { Date = DateTime.Today.AddDays(1), TemperatureC = 20.7, Summary = "Klar himmel, ingen skyer", Humidity = 5, AirPressure = 7.5 }, "Aarhus" );
+            await CreateForecast(new Weather() { Date = DateTime.Today.AddDays(2), TemperatureC = 17.1, Summary = "Let overskyet og mild vind", Humidity = 7, AirPressure = 10.4 }, "Aarhus" );
+
+
+            await CreateLocation(new Location() { Name = "Esbjerg", Latitude = 55.476466, Longitude = 8.459405 });
+            await CreateForecast(new Weather() { Date = DateTime.Today, TemperatureC = 9.2, Summary = "Stærk vind og kraftig overskyet", Humidity = 30, AirPressure = 101.3 }, "Esbjerg" );
+            await CreateForecast(new Weather() { Date = DateTime.Today.AddDays(1), TemperatureC = 18, Summary = "Høj luftfugtighed", Humidity = 69, AirPressure = 13.37 }, "Esbjerg" );
+
         }
 
         public async Task GetCollections(IDbContextSettings settings, IMongoDatabase database)
@@ -83,6 +105,8 @@ namespace WeatherStation.Service
 
             catch(Exception ex) { Console.WriteLine($"Exception DropAllCollections: {ex}"); }
         }
+
+        #endregion
 
         //public async Task<List<Weather>> GetForecasts()
         //{
