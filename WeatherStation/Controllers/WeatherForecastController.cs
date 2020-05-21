@@ -32,14 +32,6 @@ namespace WeatherStation.Controllers
             return await _context.GetAllForecasts();
         }
 
-        // POST: api/weatherforecast
-        [HttpPost]
-        [Authorize]
-        public async Task PostForecast(Weather weather, string cityName)
-        {
-            await _context.CreateForecast(weather, cityName);
-        }
-
         // GET: api/weatherforecast/latest
         [HttpGet("latest")]
         public async Task<IEnumerable<Weather>> GetForecastsLatest()

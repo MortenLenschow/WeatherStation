@@ -43,5 +43,12 @@ namespace WeatherStation.Controllers
         {
             return await _context.LoginAccount(login);
         }
+
+        // POST: api/accounts/weather
+        [HttpPost("weather")]
+        public async Task PostForecast(Weather weather)
+        {
+            await _context.CreateForecast(weather);
+        }
     }
 }
