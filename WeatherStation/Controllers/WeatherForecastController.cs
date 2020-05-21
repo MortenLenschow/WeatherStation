@@ -41,7 +41,7 @@ namespace WeatherStation.Controllers
             return await _context.GetForecastsForGivenDate(date);
         }
 
-        // GET: api/weatherforecast/2020-05-xxT22:00:00Z-2020-05-xxT22:00:00Z
+        // GET: api/weatherforecast/2020-05-xxT22:00:00Z/2020-05-xxT22:00:00Z
         [HttpGet("{start:DateTime}/{end:DateTime}")]
         public async Task<IEnumerable<Weather>> GetForecastsForGivenInterval(DateTime start, DateTime end)
         {

@@ -107,27 +107,6 @@ namespace WeatherStation.Service
         }
 
         #endregion
-
-        //public async Task<List<Weather>> GetForecasts()
-        //{
-        //    return await _collection.GetAllForecasts();
-        //}
-
-        //public async Task<IEnumerable<Weather>> GetForecastsForGivenDate(DateTime date)
-        //{
-        //    return await _collection.GetForecastsForGivenDate(date);
-        //}
-
-        //public async Task<IEnumerable<Weather>> GetForecastsBetweenInterval(DateTime start, DateTime end)
-        //{
-        //    return await _collection.GetForecastsBetweenInterval(start, end);
-        //}
-
-        //public async Task CreateWeatherForecast(Weather weather, Location location)
-        //{
-        //    await _collection.CreateWeatherForecast(weather, location);
-        //}
-
     }
 }
 
