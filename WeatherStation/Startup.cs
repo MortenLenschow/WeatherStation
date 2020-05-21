@@ -35,7 +35,7 @@ namespace WeatherStation
 
             // configure jwt authentication
             var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.SecretKey);
+            var key = Encoding.ASCII.GetBytes("9523kwdwkewkrewKSADKASD2121ldassadl21321");
             services.AddAuthentication(x =>
                 {
                     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -78,6 +78,7 @@ namespace WeatherStation
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
