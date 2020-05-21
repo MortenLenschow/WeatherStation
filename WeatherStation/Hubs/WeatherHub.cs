@@ -8,9 +8,6 @@ namespace WeatherStation.Hubs
 {
     public class WeatherHub : Hub
     {
-        public async Task SendMessage(string weatherforecast)
-        {
-            await Clients.All.SendAsync("ReceiveMessage", weatherforecast);
-        }
+
     }
 }

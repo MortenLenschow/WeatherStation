@@ -12,6 +12,7 @@ namespace WeatherStation.Service
 {
     public class DbContext
     {
+        public Weather CurrentlyAddedWeather { get; set; }
         private IMongoCollection<Account> _Account;
         private IMongoCollection<Weather> _Weather;
         private IMongoCollection<Location> _Location;
@@ -23,6 +24,30 @@ namespace WeatherStation.Service
 
             DropAllCollections(settings, database);
             GetCollections(settings, database);
+            Task.Run(() => Seed()).Wait();
+        }
+
+        public DbContext()
+        {
+            var client = new MongoClient("mongodb+srv://dbUser:dbUserPassword123@cluster0-tefh6.azure.mongodb.net/test?retryWrites=true&w=majority");
+            var database = client.GetDatabase("WeatherForecastDb");
+
+            //Drop collection
+            try
+            {
+                database.DropCollection("Weather");
+                database.DropCollection("Location");
+                database.DropCollection("Account");
+            }
+
+
+            //Get Collection
+            catch (Exception ex) { Console.WriteLine($"Exception DropAllCollections: {ex}"); }
+
+            _Weather = database.GetCollection<Weather>("Weather"); //"Weather"
+            _Location = database.GetCollection<Location>("Location"); //"Location"
+            _Account = database.GetCollection<Account>("Account"); //"Account"
+
             Task.Run(() => Seed()).Wait();
         }
 
@@ -65,11 +90,20 @@ namespace WeatherStation.Service
         //Add weather forecast
         public async Task CreateForecast(Weather weather)
         {
+            CurrentlyAddedWeather = null;
             weather.LocationId = GetLocation(weather.Location).LocationId;
             await _Weather.InsertOneAsync(weather);
             await _Location.UpdateOneAsync(Builders<Location>.Filter.Eq("Name", weather.Location),
                 Builders<Location>.Update.Push("WeatherId", weather.WeatherId));
+            CurrentlyAddedWeather = weather;
         }
+
+        public string ReturnUpdatedForecast()
+        {
+            var jsonweather = Newtonsoft.Json.JsonConvert.SerializeObject(CurrentlyAddedWeather);
+            return jsonweather;
+        }
+
 
         //Adds location id to weather forecast
         public async Task CreateLocation(Location location)

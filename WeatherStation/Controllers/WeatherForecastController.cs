@@ -22,6 +22,11 @@ namespace WeatherStation.Controllers
             _weatherHubContext = weatherHubContext;
         }
 
+        public WeatherForecastController(DbContext context)
+        {
+            _context = context;
+        }
+
         // GET: api/weatherforecast
         [HttpGet]
         public async Task<IEnumerable<Weather>> GetAll()
