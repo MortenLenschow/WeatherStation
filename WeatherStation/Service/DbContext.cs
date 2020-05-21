@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using WeatherStation.Models;
 using WeatherStation.Models.DTO;
-using Microsoft.AspNetCore.Authorization;
 using static BCrypt.Net.BCrypt;
 
 namespace WeatherStation.Service
