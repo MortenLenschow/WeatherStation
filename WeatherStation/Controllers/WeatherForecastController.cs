@@ -53,6 +53,11 @@ namespace WeatherStation.Controllers
             return await _context.GetForecastsForGivenInterval(start, end);
         }
 
-
+        [HttpGet("update")]
+        public async Task<IActionResult> ReturnUpdatedForecast()
+        {
+            await _weatherHubContext.Clients.All.SendAsync("weatherUpdate", _context.ReturnUpdatedForecast());
+            return Ok();
+        }
     }
 }
