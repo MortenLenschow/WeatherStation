@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using WeatherStation.Models;
+using WeatherStation.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
+using static BCrypt.Net.BCrypt;
 
 namespace WeatherStation.Service
 {
     public class DbContext
     {
+        private IMongoCollection<Account> _Account;
         private IMongoCollection<Weather> _Weather;
         private IMongoCollection<Location> _Location;
 
@@ -19,8 +23,9 @@ namespace WeatherStation.Service
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
 
-            DropAllCollections(settings, database);
+            //DropAllCollections(settings, database);
             GetCollections(settings, database);
+            //Task.Run(() => Seed()).Wait();
         }
 
         #region API
@@ -51,6 +56,12 @@ namespace WeatherStation.Service
             return list.OrderByDescending(weather => weather.Date).Take(3);
         }
 
+        public async Task<IEnumerable<Account>> GetAllAccounts()
+        {
+            return await _Account.Find(_ => true).ToListAsync();
+            //return await _Weather.Find(weather => weather.Date != null).ToListAsync();
+        }
+
         public Location GetLocation(string name) => _Location.Find(location => location.Name == name).FirstOrDefault();
 
         //Add weather forecast
@@ -64,9 +75,45 @@ namespace WeatherStation.Service
         }
 
         //Adds location id to weather forecast
-        private async Task CreateLocation(Location location)
+        public async Task CreateLocation(Location location)
         {
             await _Location.InsertOneAsync(location);
+        }
+
+        //Adds Account
+        public async Task CreateAccount(Login login)
+        {
+            var account = new Account
+            {
+                Email = login.Email.ToLowerInvariant()
+            };
+            var emailExist = await _Account.Find(acc => acc.Email == account.Email).FirstOrDefaultAsync().ConfigureAwait(false);
+
+            if(emailExist == null)
+            {
+                account.PwHash = HashPassword(login.Password, 10);
+                await _Account.InsertOneAsync(account);
+            }
+        }
+
+        //Login Account
+        public async Task<ActionResult<Token>> LoginAccount(Login login)
+        {
+            login.Email = login.Email.ToLowerInvariant();
+            var account = await _Account.Find(acc => acc.Email == login.Email).FirstOrDefaultAsync().ConfigureAwait(false);
+
+            if (account != null)
+            {
+                var validPwd = Verify(login.Password, account.PwHash);
+                if(validPwd)
+                {
+                    var jwt = JwtService.GenerateToken(account.Email);
+                    var token = new Token() { JWT = jwt };
+                    return token;
+
+                }
+            }
+            return null;
         }
 
         #endregion
@@ -76,23 +123,32 @@ namespace WeatherStation.Service
         public async Task Seed()
         {
             await CreateLocation(new Location() { Name = "Aarhus", Latitude = 10.203921, Longitude = 56.162939 });
-            await CreateForecast(new Weather() { Date = DateTime.Today, TemperatureC = 25.3, Summary = "Konge sommervejr", Humidity = 3, AirPressure = 5.3 }, "Aarhus" );
-            await CreateForecast(new Weather() { Date = DateTime.Today.AddDays(1), TemperatureC = 20.7, Summary = "Klar himmel, ingen skyer", Humidity = 5, AirPressure = 7.5 }, "Aarhus" );
-            await CreateForecast(new Weather() { Date = DateTime.Today.AddDays(2), TemperatureC = 17.1, Summary = "Let overskyet og mild vind", Humidity = 7, AirPressure = 10.4 }, "Aarhus" );
+            await CreateForecast(new Weather() { Date = DateTime.Today, TemperatureC = 25.3, 
+                Summary = "Konge sommervejr", Humidity = 3, AirPressure = 5.3 }, "Aarhus" );
+            await CreateForecast(new Weather() { Date = DateTime.Today.AddDays(1), TemperatureC = 20.7, 
+                Summary = "Klar himmel, ingen skyer", Humidity = 5, AirPressure = 7.5 }, "Aarhus" );
+            await CreateForecast(new Weather() { Date = DateTime.Today.AddDays(2), TemperatureC = 17.1, 
+                Summary = "Let overskyet og mild vind", Humidity = 7, AirPressure = 10.4 }, "Aarhus" );
 
 
             await CreateLocation(new Location() { Name = "Esbjerg", Latitude = 55.476466, Longitude = 8.459405 });
-            await CreateForecast(new Weather() { Date = DateTime.Today, TemperatureC = 9.2, Summary = "Stærk vind og kraftig overskyet", Humidity = 30, AirPressure = 101.3 }, "Esbjerg" );
-            await CreateForecast(new Weather() { Date = DateTime.Today.AddDays(1), TemperatureC = 18, Summary = "Høj luftfugtighed", Humidity = 69, AirPressure = 13.37 }, "Esbjerg" );
+            await CreateForecast(new Weather() { Date = DateTime.Today, TemperatureC = 9.2,
+                Summary = "Stærk vind og kraftig overskyet", Humidity = 30, AirPressure = 101.3 }, "Esbjerg" );
+            await CreateForecast(new Weather() { Date = DateTime.Today.AddDays(1), TemperatureC = 18, 
+                Summary = "Høj luftfugtighed", Humidity = 69, AirPressure = 13.3 }, "Esbjerg" );
+            await CreateForecast(new Weather() { Date = DateTime.Today.AddDays(2), TemperatureC = 14, 
+                Summary = "OK vejr", Humidity = 2, AirPressure = 12.2 }, "Esbjerg");
 
+            
+            await CreateAccount(new Login { Email = "admin", Password = "admin" });
+            await CreateAccount(new Login { Email = "test123@m.dk", Password = "test123" });
         }
 
-        public async Task GetCollections(IDbContextSettings settings, IMongoDatabase database)
+        public void GetCollections(IDbContextSettings settings, IMongoDatabase database)
         {
             _Weather = database.GetCollection<Weather>(settings.WeatherCollectionName); //"Weather"
             _Location = database.GetCollection<Location>(settings.LocationCollectionName); //"Location"
-
-            if (_Weather.Find(_ => true).ToList().Count() <= 0) await Seed();
+            _Account = database.GetCollection<Account>(settings.AccountCollectionName); //"Account"
         }
 
         public void DropAllCollections(IDbContextSettings settings, IMongoDatabase database)
@@ -101,9 +157,10 @@ namespace WeatherStation.Service
             {
                 database.DropCollection(settings.WeatherCollectionName);
                 database.DropCollection(settings.LocationCollectionName);
+                database.DropCollection(settings.AccountCollectionName);
             }
 
-            catch(Exception ex) { Console.WriteLine($"Exception DropAllCollections: {ex}"); }
+            catch (Exception ex) { Console.WriteLine($"Exception DropAllCollections: {ex}"); }
         }
 
         #endregion

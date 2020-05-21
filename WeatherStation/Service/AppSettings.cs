@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace WeatherStation.Helpers
+namespace WeatherStation.Service
 {
     public class AppSettings
     {
-        public string Secret { get; set; }
+        public string SecretKey { get; set; }
+        public int BcryptWorkfactor { get; set; }
     }
 }

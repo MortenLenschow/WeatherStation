@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WeatherStation.Models;
@@ -25,6 +26,14 @@ namespace WeatherStation.Controllers
         public async Task<IEnumerable<Weather>> GetAll()
         {
             return await _context.GetAllForecasts();
+        }
+
+        // POST: api/weatherforecast
+        [HttpPost]
+        [Authorize]
+        public async Task PostForecast(Weather weather, string cityName)
+        {
+            await _context.CreateForecast(weather, cityName);
         }
 
         // GET: api/weatherforecast/latest
