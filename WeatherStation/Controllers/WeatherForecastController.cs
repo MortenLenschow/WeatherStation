@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
+using WeatherStation.Hubs;
 using WeatherStation.Models;
 using WeatherStation.Service;
 
@@ -15,10 +17,12 @@ namespace WeatherStation.Controllers
     public class WeatherForecastController : ControllerBase
     {
         private DbContext _context;
+        private readonly IHubContext<WeatherHub> _weatherHubContext;
 
-        public WeatherForecastController(DbContext context)
+        public WeatherForecastController(DbContext context, IHubContext<WeatherHub> weatherHubContext)
         {
             _context = context;
+            _weatherHubContext = weatherHubContext;
         }
 
         // GET: api/weatherforecast
@@ -56,5 +60,7 @@ namespace WeatherStation.Controllers
         {
             return await _context.GetForecastsForGivenInterval(start, end);
         }
+
+
     }
 }

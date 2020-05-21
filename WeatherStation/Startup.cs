@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using WeatherStation.Hubs;
 
 namespace WeatherStation
 {
@@ -27,7 +28,7 @@ namespace WeatherStation
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-
+            services.AddSignalR();
             // configure strongly typed settings objects
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
@@ -81,6 +82,7 @@ namespace WeatherStation
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<WeatherHub>("/WeatherHub");
             });
         }
     }
