@@ -127,25 +127,6 @@ namespace WeatherStation.Service
             }
         }
 
-        //Login Account
-        public async Task<ActionResult<Token>> LoginAccount(Login login)
-        {
-            login.Email = login.Email.ToLowerInvariant();
-            var account = await _Account.Find(acc => acc.Email == login.Email).FirstOrDefaultAsync().ConfigureAwait(false);
-
-            if (account != null)
-            {
-                var validPwd = Verify(login.Password, account.PwHash);
-                if(validPwd)
-                {
-                    var jwt = JwtService.GenerateToken(account.Email);
-                    var token = new Token() { JWT = jwt };
-                    return token;
-
-                }
-            }
-            return null;
-        }
 
         #endregion
 

@@ -19,7 +19,6 @@ namespace WeatherStationUnitTest
     public class WeatherStationUnitTest
     {
         private DbContext _dbcontext;
-        private readonly ILogger<WeatherForecastController> _logger;
         private WeatherForecastController uut;
 
         [SetUp]
