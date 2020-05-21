@@ -5,12 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Service\NewFile.txt" />
+    <Compile Remove="Authentication\**" />
+    <Compile Remove="Data\**" />
+    <Content Remove="Authentication\**" />
+    <Content Remove="Data\**" />
+    <EmbeddedResource Remove="Authentication\**" />
+    <EmbeddedResource Remove="Data\**" />
+    <None Remove="Authentication\**" />
+    <None Remove="Data\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\" />
-    <Folder Include="Authentication\" />
+    <None Remove="Service\NewFile.txt" />
   </ItemGroup>
 
   <ItemGroup>

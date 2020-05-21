@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using WeatherStation.Helpers;
 using WeatherStation.Service;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -36,7 +35,7 @@ namespace WeatherStation
 
             // configure jwt authentication
             var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+            var key = Encoding.ASCII.GetBytes(appSettings.SecretKey);
             services.AddAuthentication(x =>
                 {
                     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -63,7 +62,7 @@ namespace WeatherStation
             services.AddSingleton<DbContext>();
 
             // configure DI for application services
-            services.AddScoped<IUserService, UserService>();
+            //services.AddScoped<IUserService, UserService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

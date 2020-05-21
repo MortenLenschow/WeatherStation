@@ -9,6 +9,7 @@ namespace WeatherStation.Service
     {
         string WeatherCollectionName { get; set; }
         string LocationCollectionName { get; set; }
+        string AccountCollectionName { get; set; }
         string ConnectionString { get; set; }
         string DatabaseName { get; set; }
     }
