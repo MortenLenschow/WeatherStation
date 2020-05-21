@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using WeatherStation.Models;
+using System.Web.Script.Serialization;
 
 namespace WeatherStation.Service
 {
     public class DbContext
     {
+        public Weather CurrentlyAddedWeather { get; set; }
         private IMongoCollection<Weather> _Weather;
         private IMongoCollection<Location> _Location;
 
@@ -21,6 +23,7 @@ namespace WeatherStation.Service
 
             DropAllCollections(settings, database);
             GetCollections(settings, database);
+            Task.Run(() => Seed()).Wait();
         }
 
         #region API
@@ -56,11 +59,19 @@ namespace WeatherStation.Service
         //Add weather forecast
         public async Task CreateForecast(Weather weather, string cityName)
         {
+            CurrentlyAddedWeather = null;
             weather.LocationId = GetLocation(cityName).LocationId;
 
             await _Weather.InsertOneAsync(weather);
             await _Location.UpdateOneAsync(Builders<Location>.Filter.Eq("Name", cityName),
                 Builders<Location>.Update.Push("WeatherId", weather.WeatherId));
+            CurrentlyAddedWeather = weather;
+        }
+
+        public string ReturnUpdatedForecast()
+        {
+            var jsonweather = Newtonsoft.Json.JsonConvert.SerializeObject(CurrentlyAddedWeather);
+            return jsonweather;
         }
 
         //Adds location id to weather forecast
@@ -68,12 +79,11 @@ namespace WeatherStation.Service
         {
             await _Location.InsertOneAsync(location);
         }
+            #endregion
 
-        #endregion
+            #region Seeding/Deleting
 
-        #region Seeding/Deleting
-
-        public async Task Seed()
+            public async Task Seed()
         {
             await CreateLocation(new Location() { Name = "Aarhus", Latitude = 10.203921, Longitude = 56.162939 });
             await CreateForecast(new Weather() { Date = DateTime.Today, TemperatureC = 25.3, Summary = "Konge sommervejr", Humidity = 3, AirPressure = 5.3 }, "Aarhus" );
@@ -87,12 +97,11 @@ namespace WeatherStation.Service
 
         }
 
-        public async Task GetCollections(IDbContextSettings settings, IMongoDatabase database)
+        public void GetCollections(IDbContextSettings settings, IMongoDatabase database)
         {
             _Weather = database.GetCollection<Weather>(settings.WeatherCollectionName); //"Weather"
             _Location = database.GetCollection<Location>(settings.LocationCollectionName); //"Location"
 
-            if (_Weather.Find(_ => true).ToList().Count() <= 0) await Seed();
         }
 
         public void DropAllCollections(IDbContextSettings settings, IMongoDatabase database)
